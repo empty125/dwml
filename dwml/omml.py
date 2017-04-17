@@ -15,7 +15,10 @@ OMML_NS = "{http://schemas.openxmlformats.org/officeDocument/2006/math}"
 
 def load(stream):
 	tree = ET.parse(stream)
-	for omath in tree.findall(OMML_NS+'oMath'):
+	omathlist = tree.findall(OMML_NS+'oMath')
+	if omathlist == []:
+		omathlist=tree.findall('.//{http://schemas.openxmlformats.org/officeDocument/2006/math}oMath')
+	for omath in omathlist:
 		yield oMath2Latex(omath)
 
 def load_string(string):
@@ -26,7 +29,6 @@ def load_string(string):
 def escape_latex(strs):
 	last = None
 	new_chr = []
-	strs = strs.replace(r'\\','\\')
 	for c in strs :
 		if (c in CHARS) and (last !=BACKSLASH):
 			new_chr.append(BACKSLASH+c)
@@ -84,7 +86,7 @@ class Tag2Method(object):
 		"""
 		process children of the elm,return string
 		"""
-		return BLANK.join(( t if not isinstance(t,Tag2Method) else str(t) 
+		return BLANK.join(( t if not isinstance(t,Tag2Method) else unicode(t) 
 			for stag,t,e in self.process_children_list(elm,include)))
 
 	def process_unknow(self,elm,stag):
@@ -106,9 +108,6 @@ class Pr(Tag2Method):
 
 	def __str__(self):
 		return self.text
-
-	def __unicode__(self):
-		return self.__str__(self)
 
 	def __getattr__(self,name):
 		return self.__innerdict.get(name,None)

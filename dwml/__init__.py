@@ -13,3 +13,8 @@ class NotSupport(Exception):
 	not support exception
 	"""
 	pass
+
+__all__ = ['docx', 'latex_dict', 'omml','utils']
+
+for module in __all__:
+    __import__(module, globals(), locals(), [])
